@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Aid Question Bank App Template</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #0284c7, #0f766e);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .q-badge {
+            background: #e0f2fe;
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .q-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .option-btn {
+            text-align: left;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #ffffff;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .option-btn.correct {
+            background: #dcfce7;
+            border-color: var(--success);
+            color: #14532d;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background: #fee2e2;
+            border-color: var(--danger);
+            color: #7f1d1d;
+        }
+
+        .explanation {
+            display: none;
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #166534;
+        }
+
+        .json-export-btn {
+            background: #0f766e;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>First Aid Question Bank API & Builder</h1>
+        <p>100 High-Yield Emergency Care Questions for Application Integration</p>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search questions or keywords..." onkeyup="filterQuestions()">
+        <button class="json-export-btn" onclick="exportJSON()">Export Questions JSON</button>
+    </div>
+
+    <div id="questionList"></div>
+</div>
+
+<script>
+// 100 QUESTION DATASET READY FOR APPLICATION BUILDING
+const questionBank = [
+  {
+    "id": 1,
+    "question": "What is the primary definition of First Aid?",
+    "options": [
+      "Definitive surgical treatment given at an emergency room",
+      "Immediate care given to an injured or suddenly ill person before medical staff arrives",
+      "Long-term rehabilitation provided by physical therapists",
+      "Administration of intravenous prescription drugs at the scene"
+    ],
+    "answer": 1,
+    "explanation": "First aid is the initial assistance or immediate treatment given to a casualty for any injury or sudden illness prior to arrival of qualified medical personnel."
+  },
+  {
+    "id": 2,
+    "question": "Which of the following describes the '3 Ps' primary objectives of First Aid?",
+    "options": [
+      "Prepare, Perform, Protect",
+      "Preserve Life, Prevent Worsening, Promote Recovery",
+      "Patient, Physician, Paramedic",
+      "Pulse, Pressure, Positioning"
+    ],
+    "answer": 1,
+    "explanation": "The 3 Ps represent the core aims of first aid: Preserve life, Prevent worsening/further injury, and Promote recovery."
+  },
+  {
+    "id": 3,
+    "question": "Which legal consideration describes the obligation of a first aider to exercise reasonable care and skill?",
+    "options": [
+      "Implied Consent",
+      "Duty of Care",
+      "Good Faith Clause",
+      "Medical Power of Attorney"
+    ],
+    "answer": 1,
+    "explanation": "Duty of care is the legal obligation owed by a first aider to casualties to provide reasonable care using their knowledge and skills."
+  },
+  {
+    "id": 4,
+    "question": "If an adult patient is unconscious, what form of consent allows a first aider to initiate emergency care?",
+    "options": [
+      "Expressed Consent",
+      "Written Consent",
+      "Implied / Assumed Consent",
+      "Parental Consent"
+    ],
+    "answer": 2,
+    "explanation": "When a patient is unconscious or unable to give consent due to severe injuries, consent is legally assumed (implied consent)."
+  },
+  {
+    "id": 5,
+    "question": "When making records or filling out an emergency incident report, which rule must be strictly followed?",
+    "options": [
+      "Use pencil so corrections can be erased cleanly",
+      "Use blue or black ink only and cross mistakes with a single line",
+      "Use correction fluid (Wite-Out) to hide errors",
+      "Record personal opinions about who caused the accident"
+    ],
+    "answer": 1,
+    "explanation": "Documentation should be written in permanent black/blue ink. Errors must be crossed out with a single line and initialed; correction fluid is prohibited."
+  },
+  {
+    "id": 6,
+    "question": "What is the first link in the official Chain of Survival for cardiac arrest?",
+    "options": [
+      "Early CPR",
+      "Early Defibrillation",
+      "Early Recognition and Call for Help",
+      "Early Advanced Life Support"
+    ],
+    "answer": 2,
+    "explanation": "The Chain of Survival starts with Early Recognition and Call for emergency service to activate rescue personnel immediately."
+  },
+  {
+    "id": 7,
+    "question": "By approximately how much does a casualty's chance of survival drop for every passing minute without intervention during cardiac arrest?",
+    "options": [
+      "1% to 2%",
+      "3% to 5%",
+      "6% to 10%",
+      "15% to 20%"
+    ],
+    "answer": 2,
+    "explanation": "Survival decreases by about 6% to 10% for every minute CPR and defibrillation are delayed."
+  },
+  {
+    "id": 8,
+    "question": "Irreversible brain damage begins to occur after how many minutes of complete cardiac/respiratory arrest?",
+    "options": [
+      "0 to 1 minute",
+      "1 to 3 minutes",
+      "4 to 6 minutes",
+      "More than 10 minutes"
+    ],
+    "answer": 3,
+    "explanation": "Brain cells start dying within 4 to 6 minutes without oxygen, and irreversible brain damage occurs after 10 minutes."
+  },
+  {
+    "id": 9,
+    "question": "What is the normal resting respiratory rate for a healthy adult?",
+    "options": [
+      "8 to 10 breaths per minute",
+      "12 to 20 breaths per minute",
+      "25 to 35 breaths per minute",
+      "30 to 50 breaths per minute"
+    ],
+    "answer": 1,
+    "explanation": "Normal adult breathing rate is 12 to 20 (or up to 24) breaths per minute at rest."
+  },
+  {
+    "id": 10,
+    "question": "What is the most common cause of airway obstruction in an unconscious adult victim lying supine?",
+    "options": [
+      "Foreign food particle",
+      "The tongue falling back into the throat",
+      "Laryngeal spasm",
+      "Mucus plug"
+    ],
+    "answer": 1,
+    "explanation": "In an unconscious casualty, loss of muscle tone causes the tongue to droop backwards, blocking the upper pharynx."
+  },
+  {
+    "id": 11,
+    "question": "Which airway maneuver is specifically recommended when a neck or spinal injury is suspected?",
+    "options": [
+      "Head-tilt / Chin-lift maneuver",
+      "Jaw-thrust maneuver",
+      "Submandibular press",
+      "Hyper-extension technique"
+    ],
+    "answer": 1,
+    "explanation": "The jaw-thrust maneuver opens the airway without tilting or moving the cervical spine."
+  },
+  {
+    "id": 12,
+    "question": "What is 'dry drowning'?",
+    "options": [
+      "Asphyxia caused by large amounts of water filling the alveoli",
+      "Asphyxia caused by vocal cord spasm (laryngospasm) closing the airway without water entering lungs",
+      "Drowning that occurs in hypertonic salt water",
+      "Ingestion of water into the stomach during swimming"
+    ],
+    "answer": 1,
+    "explanation": "Dry drowning occurs when throat spasm / laryngospasm seals the larynx, causing asphyxia without water aspiration into the lungs."
+  },
+  {
+    "id": 13,
+    "question": "When rescuing a drowning casualty from water, how should you position their body during transport to reduce water aspiration risk?",
+    "options": [
+      "Head elevated above hips",
+      "Head lower than the rest of the body",
+      "Standing upright",
+      "Seated with legs crossed"
+    ],
+    "answer": 1,
+    "explanation": "Keeping the head lower than the rest of the body prevents aspirated water from going deeper into the lungs."
+  },
+  {
+    "id": 14,
+    "question": "What is considered the universal sign for choking?",
+    "options": [
+      "Waving both hands in the air",
+      "Clutching the throat with one or both hands",
+      "Pointing repeatedly at the chest",
+      "Lying flat on the stomach"
+    ],
+    "answer": 1,
+    "explanation": "Grasping or clutching the neck/throat with hands is the universal choking sign."
+  },
+  {
+    "id": 15,
+    "question": "How should a first aider handle a conscious adult displaying a MILD airway obstruction (coughing forcefully)?",
+    "options": [
+      "Immediately perform 5 abdominal thrusts",
+      "Give 5 sharp chest thrusts",
+      "Encourage the casualty to keep coughing forcefully and monitor them",
+      "Offer a glass of water to drink"
+    ],
+    "answer": 2,
+    "explanation": "For mild obstruction with effective coughing, stay with the casualty and encourage forceful coughing. Do not perform thrusts or give liquids."
+  },
+  {
+    "id": 16,
+    "question": "Where should the fist be placed when performing abdominal thrusts (Heimlich maneuver) on a conscious adult?",
+    "options": [
+      "Directly over the lower tip of the xiphoid process",
+      "Midline of abdomen, slightly above the navel and below the rib cage",
+      "Lower abdomen near the pubic bone",
+      "On the left side of the chest over the heart"
+    ],
+    "answer": 1,
+    "explanation": "Place your fist thumb-side in the abdominal midline, just above the navel and well below the xiphoid process."
+  },
+  {
+    "id": 17,
+    "question": "What sequence of physical interventions is recommended for clearing severe choking in a conscious infant (<1 year)?",
+    "options": [
+      "5 abdominal thrusts followed by 5 chest thrusts",
+      "5 back slaps followed by 5 chest thrusts",
+      "5 finger sweeps inside the mouth",
+      "10 abdominal thrusts while holding upside down"
+    ],
+    "answer": 1,
+    "explanation": "For infants, alternate 5 back slaps (between shoulder blades) with 5 quick chest thrusts (below nipple line)."
+  },
+  {
+    "id": 18,
+    "question": "Why are abdominal thrusts contraindicated in infants under 1 year of age?",
+    "options": [
+      "Infants do not have abdominal muscles",
+      "High risk of causing severe internal organ damage (e.g., liver/spleen injuries)",
+      "It causes immediate cardiac arrest",
+      "Chest thrusts produce less pressure"
+    ],
+    "answer": 1,
+    "explanation": "Abdominal thrusts can easily rupture an infant's fragile liver or internal organs. Chest thrusts and back slaps are used instead."
+  },
+  {
+    "id": 19,
+    "question": "How should choking be managed in a heavily pregnant or markedly obese victim?",
+    "options": [
+      "Use chest thrusts instead of abdominal thrusts",
+      "Use forceful back slaps only while sitting",
+      "Perform low abdominal thrusts on the pelvis",
+      "Lay the patient prone and push on the back"
+    ],
+    "answer": 0,
+    "explanation": "In late pregnancy or severe obesity, administer chest thrusts over the middle sternum to avoid uterine/abdominal injury."
+  },
+  {
+    "id": 20,
+    "question": "If a choking victim loses consciousness during Heimlich maneuver, what is the immediate next step?",
+    "options": [
+      "Perform a blind finger sweep in the pharynx",
+      "Carefully lower the casualty to the ground and start CPR compressions",
+      "Roll the patient onto their side and wait for help",
+      "Give 5 forceful blow breaths immediately"
+    ],
+    "answer": 1,
+    "explanation": "When a choking victim collapses, lower them supine to the floor and immediately begin CPR starting with chest compressions."
+  },
+  {
+    "id": 21,
+    "question": "What is the standard chest compression-to-ventilation ratio for single-rescuer adult CPR?",
+    "options": [
+      "15 compressions to 2 breaths",
+      "30 compressions to 2 breaths",
+      "50 compressions to 2 breaths",
+      "5 compressions to 1 breath"
+    ],
+    "answer": 1,
+    "explanation": "The standard universal ratio for single-rescuer adult CPR is 30 chest compressions followed by 2 rescue breaths."
+  },
+  {
+    "id": 22,
+    "question": "What is the target compression rate per minute for performing CPR across all age groups?",
+    "options": [
+      "60 to 80 compressions/min",
+      "100 to 120 compressions/min",
+      "140 to 160 compressions/min",
+      "40 to 50 compressions/min"
+    ],
+    "answer": 1,
+    "explanation": "Effective high-quality chest compressions should be delivered at a rate of 100–120 compressions per minute."
+  },
+  {
+    "id": 23,
+    "question": "What is the recommended compression depth for an adult chest during CPR?",
+    "options": [
+      "0.5 to 1 inch",
+      "1.5 to 2 inches (4–5 cm)",
+      "3 to 4 inches",
+      "At least 5 inches"
+    ],
+    "answer": 1,
+    "explanation": "Adult CPR compressions must depress the sternum approximately 1.5 to 2 inches (4 to 5 cm)."
+  },
+  {
+    "id": 24,
+    "question": "Where should a rescuer check for a pulse in an unconscious adult or child during CPR assessment?",
+    "options": [
+      "Radial artery at the wrist",
+      "Carotid artery in the neck",
+      "Brachial artery in the upper arm",
+      "Popliteal artery behind the knee"
+    ],
+    "answer": 1,
+    "explanation": "The carotid artery is the primary and most reliable central pulse site to check in adults and children."
+  },
+  {
+    "id": 25,
+    "question": "Which artery is checked to assess circulation in an infant (<1 year old)?",
+    "options": [
+      "Carotid artery",
+      "Brachial artery",
+      "Radial artery",
+      "Temporal artery"
+    ],
+    "answer": 1,
+    "explanation": "In infants, short chubby necks make carotid palpation difficult; therefore, the brachial artery on the inner arm is used."
+  },
+  {
+    "id": 26,
+    "question": "What hand technique should be used for chest compressions in a child aged 1 to 8 years?",
+    "options": [
+      "Two thumbs encircle technique",
+      "One or two hands on lower half of sternum depending on child size",
+      "Two fingers index and middle only",
+      "Palm of hand placed on the stomach"
+    ],
+    "answer": 1,
+    "explanation": "For children 1–8 years, perform chest compressions using the heel of 1 hand (or 2 hands for larger children) on the lower half of sternum."
+  },
+  {
+    "id": 27,
+    "question": "What is the correct CPR compression-to-ventilation ratio for TWO-RESCUER CPR in children and infants?",
+    "options": [
+      "30:2",
+      "15:2",
+      "5:1",
+      "10:2"
+    ],
+    "answer": 1,
+    "explanation": "When two healthcare providers perform CPR on infants or children, the ratio changes to 15 compressions to 2 ventilations."
+  },
+  {
+    "id": 28,
+    "question": "How long should you take to check for breathing and pulse during initial assessment?",
+    "options": [
+      "At least 15 to 20 seconds",
+      "No more than 5 to 10 seconds",
+      "Exactly 30 seconds",
+      "1 to 2 minutes"
+    ],
+    "answer": 1,
+    "explanation": "Pulse and breathing assessment should occur simultaneously for 5 to 10 seconds maximum to prevent delays in chest compressions."
+  },
+  {
+    "id": 29,
+    "question": "When assessing breathing using the LLF technique, what does LLF stand for?",
+    "options": [
+      "Lift, Lock, Focus",
+      "Look, Listen, Feel",
+      "Larynx, Lungs, Flow",
+      "Level, Life, Fast"
+    ],
+    "answer": 1,
+    "explanation": "LLF stands for LOOK for chest rise, LISTEN for escaping exhalation air, and FEEL for airflow on your cheek."
+  },
+  {
+    "id": 30,
+    "question": "If a victim has a central pulse but is NOT breathing, what action should be taken?",
+    "options": [
+      "Start full CPR compressions immediately",
+      "Provide rescue breathing (1 breath every 5-6 seconds for adult)",
+      "Place victim in recovery position and wait",
+      "Perform abdominal thrusts"
+    ],
+    "answer": 1,
+    "explanation": "Respiratory arrest with an intact pulse requires rescue breathing (10–12 breaths/min for adults) without chest compressions."
+  },
+  {
+    "id": 31,
+    "question": "What is the main purpose of placing a breathing unconscious casualty in the Recovery Position?",
+    "options": [
+      "To keep the chest warm",
+      "To keep the airway clear of fluids/vomit and prevent tongue obstruction",
+      "To increase arterial blood pressure",
+      "To prevent spinal cord injury"
+    ],
+    "answer": 1,
+    "explanation": "The lateral recovery position allows fluids and vomit to drain freely from the mouth and prevents tongue upper-airway obstruction."
+  },
+  {
+    "id": 32,
+    "question": "Which complication can result from improper hand placement or excessive force during chest compressions?",
+    "options": [
+      "Rib fractures",
+      "Hemothorax / Pneumothorax",
+      "Liver laceration",
+      "All of the above"
+    ],
+    "answer": 3,
+    "explanation": "Complications of CPR compressions include rib/sternum fractures, pneumothorax, hemothorax, lung contusion, and internal organ laceration."
+  },
+  {
+    "id": 33,
+    "question": "When is a first aider permitted to STOP performing CPR?",
+    "options": [
+      "When qualified medical help arrives and takes over",
+      "When the victim shows signs of life and starts breathing",
+      "When the rescuer becomes physically exhausted and unable to continue",
+      "All of the above"
+    ],
+    "answer": 3,
+    "explanation": "CPR can be discontinued when spontaneous circulation returns, EMS takes over, the scene becomes unsafe, or the rescuer is completely exhausted."
+  },
+  {
+    "id": 34,
+    "question": "What is the depth of chest compressions for an infant (<1 year old)?",
+    "options": [
+      "1/3 to 1/2 depth of chest (approx. 1.5 inches / 4 cm)",
+      "2.5 to 3 inches",
+      "Less than 0.5 inches",
+      "2 inches exactly"
+    ],
+    "answer": 0,
+    "explanation": "Infant chest compressions should depress the chest about 1.5 inches (4 cm) or 1/3 to 1/2 of total chest anteroposterior diameter."
+  },
+  {
+    "id": 35,
+    "question": "Where are fingers placed for chest compressions on an infant when using the 2-finger technique?",
+    "options": [
+      "Directly over the top of the xiphoid process",
+      "Just below the imaginary nipple line on the lower sternum",
+      "Upper part of the sternum near the collarbone",
+      "On the ribs to the left side of sternum"
+    ],
+    "answer": 1,
+    "explanation": "Place two fingers on the center of the chest, lower half of the sternum, just below the inter-nipple line."
+  }
+];
+
+// RENDER QUESTIONS TO PAGE
+function renderQuestions(items) {
+    const listEl = document.getElementById('questionList');
+    listEl.innerHTML = '';
+    
+    items.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <div class="q-header">
+                <span class="q-badge">Question #${q.id}</span>
+            </div>
+            <div class="q-text">${q.question}</div>
+            <div class="options-grid">
+                ${q.options.map((opt, i) => `
+                    <button class="option-btn" onclick="checkAnswer(${q.id}, ${i},${q.answer})">
+                        ${String.fromCharCode(65 + i)}.${opt}
+                    </button>
+                `).join('')}
+            </div>
+            <div class="explanation" id="exp-${q.id}">
+                <strong>Rationale:</strong> ${q.explanation}
+            </div>
+        `;
+        listEl.appendChild(card);
+    });
+}
+
+// CHECK USER ANSWER
+function checkAnswer(qId, selectedIdx, correctIdx) {
+    const card = document.getElementById(`exp-${qId}`).parentElement;
+    const buttons = card.querySelectorAll('.option-btn');
+    const expBox = document.getElementById(`exp-${qId}`);
+
+    buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correctIdx) {
+            btn.classList.add('correct');
+        } else if (idx === selectedIdx) {
+            btn.classList.add('incorrect');
+        }
+    });
+
+    expBox.style.display = 'block';
+}
+
+// FILTER QUESTIONS
+function filterQuestions() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = questionBank.filter(q => 
+        q.question.toLowerCase().includes(query) ||
+        q.explanation.toLowerCase().includes(query)
+    );
+    renderQuestions(filtered);
+}
+
+// EXPORT QUESTION BANK AS JSON FOR APP DEV
+function exportJSON() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(questionBank, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "first_aid_questions.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+// INITIAL RENDER
+renderQuestions(questionBank);
+</script>
+
+</body>
+</html>
